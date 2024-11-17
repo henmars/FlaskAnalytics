@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content">
+    <h1 class="text-center my-5">Archivos Cargados</h1>
+    <!-- Tabla estilizada con Bootstrap 5 -->
+    <table class="table table-hover table-striped table-bordered text-center align-middle" id="dataTable">
+        <thead class="table-primary">
+            <tr>
+                <th>Nombre del Archivo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr>
+                <td class="fw-bold">{{ file }}</td>
+                <td>
+                    <!-- Botones alineados y del mismo tamaño -->
+                    <div class="d-flex justify-content-center">
+                        <!-- Botón para eliminar archivo -->
+                        <form action="/uploads" method="POST" class="d-inline me-2" id="deleteForm-{{ file }}">
+                            <input type="hidden" name="file_to_delete" value="{{ file }}">
+                            <button type="button" class="btn btn-danger btn-sm delete-btn"
+                                data-file="{{ file }}">Eliminar</button>
+                        </form>
+                        <!-- Botón para descargar archivo -->
+                        <a href="{{ url_for('static', filename='uploads/' + file) }}"
+                            class="btn btn-outline-primary btn-sm" download>Descargar</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Modal de carga con spinner -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+            <p class="fw-bold" id="modalMessage">Cargando, por favor espera...</p>
+            <div class="spinner-border text-primary mb-3" role="status" id="loadingSpinner">
+                <span class="sr-only">Cargando...</span>
+            </div>
+
+            <div id="successIcon" style="display: none;">
+                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

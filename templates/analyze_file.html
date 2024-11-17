@@ -1,0 +1,419 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+
+    <h4 class="content">Archivo seleccionado: <strong> {{ filename }}</strong></h4>
+    <br>
+    <ul class="nav nav-tabs content" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if active_tab == 'basic-info' %}active{% endif %}" id="basic-info-tab"
+                data-bs-toggle="tab" href="#basic-info" role="tab" aria-controls="basic-info"
+                aria-selected="true">Información básica</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if active_tab == 'graphs' %}active{% endif %}" id="graphs-tab" data-bs-toggle="tab"
+                href="#graphs" role="tab" aria-controls="graphs" aria-selected="false">Gráficas</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if active_tab == 'contingency' %}active{% endif %}" id="contingency-tab"
+                data-bs-toggle="tab" href="#contingency" role="tab" aria-controls="contingency"
+                aria-selected="false">Tabla de contingencia</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if active_tab == 'measures_of_tendency' %}active{% endif %}" id="nav-measures-tab"
+                data-bs-toggle="tab" href="#measures" role="tab" aria-controls="measures" aria-selected="false">Medidas
+                de tendencia</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="myTabContent">
+        <div class="tab-pane fade {% if active_tab == 'basic-info' %}show active{% endif %}" id="basic-info"
+            role="tabpanel" aria-labelledby="basic-info-tab">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="list-group content position-sticky" style="top: 20px;">
+                        <a href="#descriptive-stats" class="list-group-item list-group-item-action"
+                            data-bs-toggle="collapse" aria-expanded="false"
+                            aria-controls="descriptive-stats">Estadísticas descriptivas</a>
+                        <a href="#first-5" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                            aria-expanded="false" aria-controls="first-5">Primeras 5 filas</a>
+                        <a href="#dimensions" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                            aria-expanded="false" aria-controls="dimensions">Dimensiones</a>
+                        <a href="#null-values" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                            aria-expanded="false" aria-controls="null-values">Valores
+                            nulos</a>
+                        <a href="#df-info" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                            aria-expanded="false" aria-controls="df-info">Información del DataFrame</a>
+                    </div>
+                </div>
+
+                <div class="col-md-9 content">
+                    <div id="descriptive-stats" class="collapse show">
+                        <h3 class="content">Estadísticas descriptivas</h3>
+                        <div class="content table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Estadística</th>
+                                        {% for col in columns %}
+                                        <th>{{ col }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat, values in descriptive_stats.items() %}
+                                    <tr>
+                                        <td>{{ stat }}</td>
+                                        {% for col in columns %}
+                                        <td>{{ values[col] if col in values else 'N/A' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div id="first-5" class="collapse">
+                        <h3 class="content">Primeras 5 filas</h3>
+                        <div class="content table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        {% for col in df.columns %}
+                                        <th>{{ col }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in df.head(5).values %}
+                                    <tr>
+                                        {% for value in row %}
+                                        <td>{{ value }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Dimensiones del DataFrame -->
+                    <div id="dimensions" class="collapse">
+                        <h3 class="content">Dimensiones del DataFrame</h3>
+                        <div class="content table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Descripción</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Filas</td>
+                                        <td>{{ dimensions.rows }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Columnas</td>
+                                        <td>{{ dimensions.columns }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="null-values" class="collapse">
+                        <h3 class="content">Valores nulos</h3>
+                        <div class="content table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Columna</th>
+                                        <th>Valores nulos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for col, null_count in null_values.items() %}
+                                    <tr>
+                                        <td>{{ col }}</td>
+                                        <td>{{ null_count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="df-info" class="collapse">
+                        {% if df_info %}
+                        <h3 class="content">Información del DataFrame</h3>
+                        <div class="content">
+                            <pre>{{ df_info }}</pre>
+                            {% else %}
+                            <p>No se pudo cargar la información del DataFrame.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'graphs' %}show active{% endif %}" id="graphs" role="tabpanel"
+            aria-labelledby="graphs-tab">
+            <!-- Formulario para gráficos -->
+            <div class="container">
+                <div class="row justify-content-center">
+                    <!-- Columna para el formulario -->
+                    <div class="col-md-6">
+                        <form class="content" method="POST">
+                            <div class="form-group mb-4">
+                                <label for="col1" class="form-label">Seleccionar primera columna:</label>
+                                <select name="col1" id="col1" class="form-select form-select-sm w-100">
+                                    {% for col in columns %}
+                                    <option value="{{ col }}">{{ col }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="col2" class="form-label">Seleccionar segunda columna:</label>
+                                <select name="col2" id="col2" class="form-select form-select-sm w-100">
+                                    {% for col in columns %}
+                                    <option value="{{ col }}">{{ col }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="graph_type" class="form-label">Tipo de gráfico:</label>
+                                <select name="graph_type" id="graph_type" class="form-select form-select-sm w-100">
+                                    <option value="bar">Barra</option>
+                                    <option value="pie">Pastel</option>
+                                    <option value="line">Línea</option>
+                                </select>
+                            </div>
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                <button type="submit" class="btn btn-primary w-100">Generar gráfico</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Columna para la gráfica generada -->
+                    <div class="col-md-6">
+                        {% if graph_url %}
+                        <div class="content">
+                            <img src="{{ url_for('static', filename=graph_url) }}" alt="Generated Graph"
+                                class="img-fluid">
+                        </div>
+
+                        {% elif error_message %}
+                        <div class="alert alert-danger mt-4" role="alert">
+                            {{ error_message }}
+                        </div>
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Nueva pestaña para Tabla de Contingencia -->
+        <div class="tab-pane fade {% if active_tab == 'contingency' %}show active{% endif %}" id="contingency"
+            role="tabpanel" aria-labelledby="contingency-tab">
+
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <!-- Columna del formulario -->
+                    <div class="col-lg-6 col-md-8 col-sm-12 mb-4">
+                        <div class="content">
+                            <form method="post">
+                                <div class="form-group mb-4">
+                                    <label for="col1" class="form-label">Seleccionar columna (filtro)</label>
+                                    <select class="form-select form-select-sm w-100" id="col1" name="col1">
+                                        {% for col in categorical_columns %}
+                                        <option value="{{ col }}">{{ col }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group mb-4">
+                                    <label for="col2" class="form-label">Seleccionar columna (filtro)</label>
+                                    <select class="form-select form-select-sm w-100" id="col2" name="col2">
+                                        {% for col in categorical_columns %}
+                                        <option value="{{ col }}">{{ col }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="d-grid gap-2 col-6 mx-auto">
+                                    <button type="submit" class="btn btn-primary mb-2">Generar tabla de
+                                        contingencia</button>
+                                    <!-- Botón para generar gráfico de contingencia -->
+                                    <button type="submit" name="generate_graph" class="btn btn-secondary">Generar
+                                        gráfico de contingencia</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Columna de la tabla y el gráfico -->
+                    <div class="col-lg-6 col-md-8 col-sm-12">
+                        {% if contingency_table_list %}
+                        <div class="content">
+                            <div class="mt-4">
+                                <h3 class="text-center content">Tabla de contingencia generada</h3>
+                                <div class="content table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ col1_name }}</th> <!-- Primera columna -->
+                                                {% for col in column_names %}
+                                                <th>{{ col }}</th>
+                                                <!-- Recorremos todos los nombres de columna dinámicamente -->
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in contingency_table_list %}
+                                            <tr>
+                                                <td>{{ row[0] }}</td> <!-- El primer valor de cada fila -->
+                                                {% for value in row[1:] %}
+                                                <td>{{ value }}</td>
+                                                <!-- Mostramos los valores correspondientes a cada columna -->
+                                                {% endfor %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Sección para mostrar el gráfico -->
+                                {% if graph_url_contingency %}
+                                <div class="mt-4">
+                                    <h3 class="text-center content">Gráfico de contingencia</h3>
+                                    <div class="content">
+                                        <img src="{{ url_for('static', filename=graph_url_contingency) }}"
+                                            alt="Contingency Graph" class="img-fluid">
+                                    </div>
+                                    {% endif %}
+                                    {% elif error_message %}
+                                    <div class="content">
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ error_message }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Medidas de tendencia -->
+        <div class="tab-pane fade {% if active_tab == 'measures_of_tendency' %}show active{% endif %}" id="measures"
+            role="tabpanel" aria-labelledby="nav-measures-tab">
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="list-group content position-sticky" style="top: 20px;">
+                            <a href="#media" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                                aria-expanded="false" aria-controls="media">Media</a>
+                            <a href="#mediana" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                                aria-expanded="false" aria-controls="mediana">Mediana</a>
+                            <a href="#moda" class="list-group-item list-group-item-action" data-bs-toggle="collapse"
+                                aria-expanded="false" aria-controls="moda">Moda</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        {% if measures %}
+                        <div id="media" class="collapse show">
+                            <h3 class="text-center content">Media</h3>
+                            <div class="content table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Columna</th>
+                                            <th>Media</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for column, stats in measures.items() %}
+                                        <tr>
+                                            <td>{{ column }}</td>
+                                            <td>{{ stats.mean }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="mediana" class="collapse">
+                            <h3 class="text-center content">Mediana</h3>
+                            <div class="content table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Columna</th>
+                                            <th>Mediana</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for column, stats in measures.items() %}
+                                        <tr>
+                                            <td>{{ column }}</td>
+                                            <td>{{ stats.median }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="moda" class="collapse">
+                            <h3 class="text-center content">Moda</h3>
+                            <div class="content table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Columna</th>
+                                            <th>Moda</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for column, stats in measures.items() %}
+                                        <tr>
+                                            <td>{{ column }}</td>
+                                            <td>{{ stats.mode }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-center">No se pueden calcular medidas de tendencia central ya que no hay
+                        columnas numéricas en el
+                        archivo.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Mostrar el formulario para seleccionar el archivo -->
+<div class="content">
+    <h3 class="text-center mb-4">Selecciona un archivo CSV para analizar</h3>
+    <form id="analyzeForm" action="{{ url_for('analyze') }}" method="POST" class="d-flex justify-content-center">
+        <div class="input-group mb-3" style="max-width: 600px; width: 100%;">
+            <select name="file" id="file" class="form-select" required>
+                {% for file in files %}
+                <option value="{{ file }}">{{ file }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Analizar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Modal de carga -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true"
+    data-backdrop="false" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-5">
+            <div id="loadingSpinner" class="spinner-border text-primary mb-3" role="status">
+                <span class="sr-only">Cargando...</span>
+            </div>
+            <div id="successIcon" style="display: none;">
+                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+            </div>
+            <p id="modalMessage" class="mt-3">Cargando archivo, por favor espera...</p>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
