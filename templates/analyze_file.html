@@ -2,11 +2,15 @@
 
 {% block content %}
 <div class="container">
-    <div class="d-flex flex-wrap align-items-center">
-        <h4 class=" m-0">Archivo seleccionado:</h4>
-        <strong> class="ms-2">{{ filename }}</strong>
+    <div class="content d-flex flex-wrap align-items-center" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <h4 class="m-0" style="flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            Archivo seleccionado: {{ filename }}
+        </h4>
     </div>
     
+
+
+
 
     <br>
     <ul class="nav nav-tabs content" id="myTab" role="tablist">
