@@ -297,12 +297,13 @@ def generate_contingency_graph(df, col1, col2):
 
     # Crear la figura del gráfico
     plt.figure(figsize=(10, 7))
+
     # Usar un mapa de calor para mostrar la tabla de contingencia
     sns.heatmap(contingency_table, annot=True, fmt="d", cmap="Blues", cbar=False)
 
     # Guardar el gráfico en un archivo
     graph_filename = f"contingency_graph_{col1}_{col2}.png"
-    graph_filepath = os.path.join('static', 'graficos', graph_filename)
+    graph_filepath = os.path.join('static', graph_filename)
     plt.savefig(graph_filepath)
     plt.close()  # Cerrar la figura para liberar memoria
 
