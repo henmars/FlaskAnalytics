@@ -68,7 +68,7 @@ def generate_graph(filename, col1, col2, graph_type):
             plot_data = group_sizes
 
         plot_data.plot(kind='pie', autopct='%1.1f%%', ax=ax, colors=plt.cm.Paired.colors)
-        ax.set_title('Gráfico Circular Mejorado', fontsize=16)
+        ax.set_title('Gráfico Circular', fontsize=16)
         ax.set_ylabel('')  # Eliminar la etiqueta del eje Y para gráficos circulares
     elif graph_type == 'line':
         # Verificar si col1 es numérico para usarlo en el gráfico de líneas
@@ -297,13 +297,12 @@ def generate_contingency_graph(df, col1, col2):
 
     # Crear la figura del gráfico
     plt.figure(figsize=(10, 7))
-
     # Usar un mapa de calor para mostrar la tabla de contingencia
     sns.heatmap(contingency_table, annot=True, fmt="d", cmap="Blues", cbar=False)
 
     # Guardar el gráfico en un archivo
     graph_filename = f"contingency_graph_{col1}_{col2}.png"
-    graph_filepath = os.path.join('static', graph_filename)
+    graph_filepath = os.path.join('static', 'graficos', graph_filename)
     plt.savefig(graph_filepath)
     plt.close()  # Cerrar la figura para liberar memoria
 
